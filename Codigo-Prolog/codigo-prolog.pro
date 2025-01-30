@@ -106,8 +106,11 @@ diagnostico(problema_interno_motor) :-
     T < 100,  % Temperatura normal
     !.
 
-diagnostico(problema_transmissao) :-
-* continue aqui...
+    diagnostico(problema_transmissao) :-
+        barulho_incomum,
+        \+ luz_check_engine,
+        temperatura_motor(T),
+        T < 100.
 
 /*********************************************
  * 4. RECOMENDAÇÕES DE AÇÃO
@@ -116,8 +119,13 @@ diagnostico(problema_transmissao) :-
  *********************************************/
 recomendacao(bateria_fraca, 'Recarregar ou substituir a bateria').
 recomendacao(alternador_defeituoso, 'Verificar correia do alternador ou trocar alternador').
-recomendacao(sistema_arrefecimento, 'Checar radiador, bomba d\'água, ventoinha e fluido de arrefecimento').
-* continue aqui...
+recomendacao(sistema_arrefecimento, 'Checar radiador, bomba de agua, ventoinha e fluido de arrefecimento').
+recomendacao(baixo_nivel_oleo, 'Verificar nivel de oleo e possiveis vazamentos').
+recomendacao(vela_ignicao_defeituosa, 'Substituir velas de ignicao').
+recomendacao(sensor_oxigenio_defeituoso, 'Substituir sensor de oxigenio').
+recomendacao(problema_injecao, 'Verificar sistema de injecao eletronica').
+recomendacao(problema_interno_motor, 'Verificar bielas, pistoes e componentes internos do motor').
+recomendacao(problema_transmissao, 'Verificar caixa de cambio e sistema de transmissao').
 
 /*********************************************
  * 5. PREDICADO PRINCIPAL DE DIAGNÓSTICO
@@ -128,8 +136,9 @@ diagnosticar :-
     % Encontra todas as causas que satisfazem as regras
     findall(Causa, diagnostico(Causa), ListaCausas),
     (   ListaCausas \= []
-    ->  format('Possiveis problemas diagnosticados: ~w~n',[ListaCausas]),
-        listar_recomendacoes(ListaCausas)
+    ->  format('Possiveis problemas diagnosticados:\n\n~w~n', [ListaCausas]), nl,
+        listar_recomendacoes(ListaCausas), nl,
+        listar_justificativas(ListaCausas)
     ;   write('Nenhum problema foi diagnosticado com as informacoes atuais.'), nl
     ).
 
