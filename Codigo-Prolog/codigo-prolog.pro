@@ -211,3 +211,71 @@ justificativa(problema_interno_motor, Justificativa) :-
 justificativa(problema_transmissao, Justificativa) :-
     atom_concat('\nHa barulhos incomuns no motor, mas a temperatura esta normal\ne a luz de ',
                 'check engine nao esta acesa.\nIsso sugere um problema na transmissao.', Justificativa).
+
+/*********************************************
+ * 8. EXEMPLOS DE CASOS DE TESTE
+ *    - Cada cenario insere (assert) valores
+ *      de sintomas e sensores, chama
+ *      diagnosticar/0 e depois limpa o estado.
+ *********************************************/
+
+% Caso de Teste 1: Partida Inconsistente
+caso_teste_1_partida_inconsistente :-
+    write('=== Caso de Teste 1: Partida Inconsistente ==='), nl, nl,
+    limpar_estado,
+    assertz(falha_ignicao),
+    assertz(luz_bateria),
+    assertz(bateria(11.8)),
+    diagnosticar,
+    limpar_estado.
+
+% Caso de Teste 2: Superaquecimento no Motor
+caso_teste_2_superaquecimento :-
+    write('=== Caso de Teste 2: Superaquecimento no Motor ==='), nl, nl,
+    limpar_estado,
+    assertz(temperatura_motor(105)),
+    assertz(nivel_oleo(1.5)),
+    assertz(luz_check_engine),
+    diagnosticar,
+    limpar_estado.
+
+% Caso de Teste 3: Motor Engasgado em Altas Rotacoes
+caso_teste_3_motor_engasgado_altas_rotacoes :-
+    write('=== Caso de Teste 3: Motor Engasgado em Altas Rotacoes ==='), nl, nl,
+    limpar_estado,
+    assertz(rotacao_alta),
+    assertz(luz_check_engine),
+    assertz(sensor_oxigenio(0.3)), % valor fora do normal
+    diagnosticar,
+    limpar_estado.
+
+% Caso de Teste 4: Ruidos no Motor ao Acelerar
+caso_teste_4_ruidos_ao_acelerar :-
+    write('=== Caso de Teste 4: Ruidos no Motor ao Acelerar ==='), nl, nl,
+    limpar_estado,
+    assertz(barulho_incomum),
+    assertz(temperatura_motor(90)),  % dentro da faixa normal
+    diagnosticar,
+    limpar_estado.
+
+% Predicado para limpar o estado dinamico antes/depois dos testes
+limpar_estado :-
+    retractall(bateria(_)),
+    retractall(temperatura_motor(_)),
+    retractall(nivel_oleo(_)),
+    retractall(sensor_oxigenio(_)),
+    retractall(luz_check_engine),
+    retractall(luz_bateria),
+    retractall(falha_ignicao),
+    retractall(barulho_incomum),
+    retractall(rotacao_alta).
+
+:- initialization(main).
+
+main :-
+    write('=== Executando varios casos de teste ==='), nl, nl,
+    caso_teste_1_partida_inconsistente, nl,
+    caso_teste_2_superaquecimento, nl,
+    caso_teste_3_motor_engasgado_altas_rotacoes, nl,
+    caso_teste_4_ruidos_ao_acelerar, nl,
+    halt.
